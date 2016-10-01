@@ -183,6 +183,7 @@
 										<tr>
 											<td class="center text-center srClass"><?php echo ++$i; ?></td>
 											<td class="center text-center"><strong>Total</strong></td>
+											
 										<?php foreach($all_products as $pkey=>$product){
 											$grossWeight[] = array_sum($grossWtArray[$product->product_id]);
 											$grossNumber[] = array_sum($grossNmArray[$product->product_id]);
@@ -191,8 +192,13 @@
 											<td class="center text-center"><strong><?php echo array_sum($grossWtArray[$product->product_id]); ?></strong></td>
 										<?php 
 										}
+										$tamount = $get_all_record['totalCost'];
+										setlocale(LC_MONETARY, 'en_IN');
+										$tamount = money_format('%!i', $tamount);
 										?>
+										
 										</tr>
+										<tr><td class="center text-center"><strong>TurnOver</strong></td><td colspan="6" class="center text-right"><strong>Turn over: <?php echo "₹".$tamount; ?> </strong></td></tr>
 									</tbody>
 								</table>
 							</div>

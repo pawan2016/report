@@ -257,7 +257,8 @@ $(function() {
 		  dateFormat: "dd/mm/yy",
 		  changeMonth: true,
 		  numberOfMonths: 1,
-			onClose: function( selectedDate ) {
+		  maxDate :"-1",
+		  onClose: function( selectedDate ) {
 			$( "#fromDate" ).datepicker( "option", "maxDate", selectedDate );
 		  }
 		});

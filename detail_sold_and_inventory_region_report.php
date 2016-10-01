@@ -452,6 +452,14 @@
 											<td class="text-center"><?php echo round(array_sum($totalintransWtArray)/1000,3); ?></td>
 										</tr>
 									</tbody>
+									<tfoot>
+										<tr>
+											<th class="text-center srClass">Sr. No1.</th>
+											<th class="text-center" style="width:10%;" ></th>
+											<th class="text-center" style="width:70%;" colspan="<?php echo count($all_products) * 7; ?>" >Coin Sales11111</th>
+											<th class="text-center" style="width:20%;" colspan="4" >Inventory in KGs11111</th>
+										</tr>
+									</tfoot>
 								</table>
 							</div>
 							
@@ -580,19 +588,26 @@
 						<table width="100%">
 						<tr><td width="50%">
 								<table  class="table table-striped table-bordered responsive">
-									<tr>
+									<thead>
+										
+										<tr>
 											<th class="text-center" colspan="2">Summary in KGs</th>
 											
 										</tr>
+									</thead>
 									<tbody>
+										<tr style=" border-bottom: 2px solid #ccc;">
 										
+											<td class="center text-left region-class">Opening Stock Intransit</td>
+											<td class="center text-center"><?php echo round($intransitWeight_x/1000,3); ?></td>
+										</tr>
 										<tr style=" border-bottom: 2px solid #ccc;">
 										
 											<td class="center text-left region-class">Opening Stock</td>
 											<td class="center text-center"><?php
 											
 											$opening_stock_summary=array_sum($totalSuppliedWtArray)-($total_summary_stockin-array_sum($totalRecieptWtArray))-array_sum($totalRecieptWtArray)+$total_summary_stockout;
-											echo round($opening_stock_summary/1000,3); ?></td>
+											echo round(($opening_stock_summary+$intransitWeight_x)/1000,3); ?></td>
 										</tr>
 										<?php
 										$stockin_summary=($total_summary_stockin-array_sum($totalRecieptWtArray));
@@ -629,11 +644,16 @@
 										</tr>
 										<tr style=" border-bottom: 2px solid #ccc;">
 										
+											<td class="center text-left region-class">Closing Stock In-transit</td>
+											<td class="center text-center"><?php echo round(($intransitWeight_y-$intransitWeight_x)/1000,3); ?></td>
+										</tr>
+										<tr style=" border-bottom: 2px solid #ccc;">
+										
 											<td class="center text-left region-class">Closing Stock</td>
 											<td class="center text-center"><?php 
-											
+											$diff_trans=$intransitWeight_y-$intransitWeight_x;
 											$balance_summary=$opening_stock_summary+$stockin_summary+array_sum($totalRecieptWtArray)-$total_summary_stockout-array_sum($totalSaleWtArray);
-											echo round($balance_summary/1000,3); ?></td>
+											echo round(($balance_summary+$diff_trans)/1000,3); ?></td>
 										</tr>
 										<tr style=" border-bottom: 2px solid #ccc;">
 										
@@ -646,7 +666,7 @@
 							</td>
 							<td width="50%" valign="top">
 							<table  class="table table-striped table-bordered responsive">
-									
+									<thead>
 										
 										<tr>
 											<th class="text-center" >Physical Stock in Kg: <?php
@@ -654,13 +674,26 @@
 											echo round($py_stock/1000,3);?></th>
 											
 										</tr>
+									</thead>
+									
+								</table>
+								<table  class="table table-striped table-bordered responsive">
+									<thead>
+										
+										<tr>
+											<th class="text-center" >Opening Stock Intransit [01/10/2015 (FIXED) - <?php echo $toDate; ?> (TO DATE)] : <?php
+											
+											echo round($intransitWeight_y/1000,3);?></th>
+											
+										</tr>
+									</thead>
 									
 								</table>
 							</td>
 							</tr></table>
 							</div>
 						
-							
+						
 						
 						</div>
 					</div>

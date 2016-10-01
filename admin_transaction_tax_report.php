@@ -205,20 +205,20 @@ error_reporting(E_All);
 										$total_mode='0';
 										$total_amount_refunded='0';
 										$mynewRecord = array();
-										foreach($all_location as $location)
-										{
+									   foreach($all_location as $location)
+									   {
 										   $office_operation_type=$location->office_operation_type;
 										   $office_id=$location->office_id;										   
-										$get_all_record=$this->Report_model->_get_transaction_tax_report_data($office_operation_type,$office_id);
-											if(!empty($get_all_record['get_all_record'])){ 
+								       $get_all_record=$this->Report_model->_get_transaction_tax_report_data($office_operation_type,$office_id);
+										if(!empty($get_all_record['get_all_record'])){ 
 
-											// testing coding by Sushant - Start
-												foreach($get_all_record['get_all_record'] as $record){
-												//	print_r($record); die;
-													$mynewRecord[] = array('transaction_date'=>$record->transaction_date,'invoice_number'=>$record->invoice_number,'invoice_type'=>$record->invoice_type,'invoice_id'=>$record->invoice_id,'total_amount'=>$record->total_amount,'amount_received'=>$record->amount_received,'surcharge_on_vat'=>$record->surcharge_on_vat,'amount_refunded'=>$record->amount_refunded,'adjustment'=>$record->adjustment,'created_date'=>$record->created_date,'officeId'=>$location->office_id,'customer_id'=>$record->customer_id,'invoice_date'=>$record->invoice_date);
-												}
+										// testing coding by Sushant - Start
+											foreach($get_all_record['get_all_record'] as $record){
+											//	print_r($record); die;
+												$mynewRecord[] = array('transaction_date'=>$record->transaction_date,'invoice_number'=>$record->invoice_number,'invoice_type'=>$record->invoice_type,'invoice_id'=>$record->invoice_id,'total_amount'=>$record->total_amount,'amount_received'=>$record->amount_received,'surcharge_on_vat'=>$record->surcharge_on_vat,'amount_refunded'=>$record->amount_refunded,'adjustment'=>$record->adjustment,'created_date'=>$record->created_date,'officeId'=>$location->office_id,'customer_id'=>$record->customer_id,'invoice_date'=>$record->invoice_date);
 											}
 										}
+									   }
 										function dateSort($a, $b) {
 										  $a = $a['created_date'];
 										  $b = $b['created_date'];
@@ -228,10 +228,10 @@ error_reporting(E_All);
 										}
 
 										usort($mynewRecord, "dateSort");
-										// testing by Sushant - end
-										// echo '<pre>';  
-										// print_r($mynewRecord);
-										// echo '</pre>';
+									   // testing by Sushant - end
+									 // echo '<pre>';  
+									   // print_r($mynewRecord);
+									   // echo '</pre>';
 									   
 									 $j = 1;
 									$totalVat = array();
@@ -239,15 +239,7 @@ error_reporting(E_All);
 									foreach($mynewRecord as $newRecord) {
 										$checkDateInvoice = explode("-",$newRecord['invoice_date']);										
 										$myInvoiceDate = $checkDateInvoice[0].'/'.$checkDateInvoice[1].'/'.$checkDateInvoice[2];
-										$customerName = '';
-										$myInvoiceInfo = $this->db->get_where("invoice_showroom_".$newRecord['officeId'],array('invoice_id'=>$newRecord['invoice_id']))->row();
-										if(isset($myInvoiceInfo->customer_name) && $myInvoiceInfo->customer_name != '')
-										{
-											$customerName = $myInvoiceInfo->customer_name;
-										}
-										else{
-											$customerName = getCustomerName($newRecord['customer_id']);
-										}
+										
 										$transaction_date = ($newRecord['transaction_date'] !='') ? $newRecord['transaction_date'] : $myInvoiceDate;
 										?>
 										<tr>
@@ -255,7 +247,7 @@ error_reporting(E_All);
 											<td class="text-center"><?php echo $j++;?></td>
 											<td class="center text-center"><?php echo $transaction_date; ?></td>
 											<td class="center text-center"><?php echo $newRecord['invoice_number'];?></td>
-											<td class="center text-center"><?php echo $customerName; ?></td>
+											<td class="center text-center"><?php echo getCustomerName($newRecord['customer_id']); ?></td>
 											<td class="center text-center">
 											<?php $product_invoice_table= 'invoice_showroom_product_'.$newRecord['officeId'];
 											
