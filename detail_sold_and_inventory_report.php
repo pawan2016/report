@@ -14,6 +14,18 @@
 .myheader{width:33%; float:left;}
 .box, .box-content, .well{padding:0px !important;}
 @page { size: landscape; margin-top:35px;}
+
+@page thead { display: table-header-group; }
+@page tfoot { display:table-footer-group;
+
+bottom: 0;
+
+height: 50px;
+
+width: 100%;
+
+position: absolute; }
+
 </style>
 <div class="ch-container">
     <div class="row my-container-class">
@@ -136,7 +148,7 @@
 							<div class="row my-hide-div">
 								<div class="form-group col-lg-6">
 									<button type="submit" name="submit" id="back_to_search"  class="btn btn-primary" style="margin-left:1%;margin-bottom:15px;">Submit</button>
-									<a style="margin-left:1%;margin-bottom:15px;" href="<?php echo base_url('Report/saleInventoryReportnew'); ?>" class='btn btn-primary' >Reset</a>
+									<a style="margin-left:1%;margin-bottom:15px;" href="<?php echo base_url('Report/saleInventoryReportdetail'); ?>" class='btn btn-primary' >Reset</a>
 									<a style="margin-left:1%;margin-bottom:15px;" href="javascript:void(0);" onclick="javascript:window.print();" class='btn btn-primary' >Print</a>
 								</div>
 							</div>
@@ -156,6 +168,7 @@
 											<th class="text-center" style="width:20%;" colspan="4" >Inventory in KGs</th>
 										</tr>
 									</thead>
+									
 									<tbody>
 										<tr>
 											<th class="text-center srClass">Sr. No.</th>
@@ -202,9 +215,127 @@
 										$totalSuppliedWtArray = array();
 										$totalSaleWtArray = array();
 										$totalBalWtArray = array();
+										$totalintransWtArray = array();
+										$totalintransWtArray_x = array();
+										$totalintransWtArray_y = array();
+										
+						
+			$intransitWeight_x = 0;
+			$intransitWeight_y = 0;	
+
+		foreach($get_all_record['ofcDatas'] as $ofc)
+		{
+					
+			foreach($all_products as $pkey=>$product)
+			{
+												
+											
+																									
+		$tableNameSTOCKRECEIPT='inventory_'.$ofc->office_operation_type.'_stock_transfer_'.$ofc->office_id;
+									
+		$this->db->select('trans_table.stock_transfer_number,trans_table.stock_transfer_date,trans_table.stock_transfer_narration,trans_table.stock_transfer_status,trans_table.stock_transfer_id, trans_table.stock_transfer_to_office_id,trans_table.authorized_date,ofc_mstr.office_name,ofc_mstr.office_address,ofc_mstr.city_id,trans_table.access_level_status,ofc_mstr.office_operation_type,
+		ofc_mstr.district_id,ofc_mstr.state_id,trans_table.added_by')->from($tableNameSTOCKRECEIPT.' as trans_table');
+		$this->db->join('office_master as ofc_mstr','ofc_mstr.office_id=trans_table.stock_transfer_to_office_id');
+		$this->db->where(array('trans_table.authorized_date >=' => '2015-10-01','trans_table.authorized_date <=' => $get_all_record['todate_x']));
+		$stock_transfer_st_sh=$this->db->get()->result();
+	//echo $this->db->last_query();
+		$transfer_product_table='inventory_'.$ofc->office_operation_type.'_stock_transfer_product_'.$ofc->office_id;	
+		$in_transit_product_x=0;				
+		foreach($stock_transfer_st_sh as $Stock_receipt_details)
+		{
+										
+			$recipet_table='inventory_'.$Stock_receipt_details->office_operation_type.'_stock_receipt_'.$Stock_receipt_details->stock_transfer_to_office_id;
+		
+			$receipt_data=$this->db->query("select * from ".$recipet_table." where stock_transfer_number='".$Stock_receipt_details->stock_transfer_number."' and authorized_date > '".$get_all_record['todate_x']."' order by stock_receipt_id desc limit 1")->row();
+			
+			if(!empty($receipt_data))
+			{
+				//echo $this->db->last_query().'<br>';
+					$productList=$this->db->get_where($transfer_product_table,array('stock_transfer_id'=>$Stock_receipt_details->stock_transfer_id,'product_id'=>$product->product_id))->result();
+			foreach($productList as $product_transfer)
+						{
+							
+							$intransitWeight_x=$intransitWeight_x+($product_transfer->stock_transfer_product_quantity*$product->product_weight);
+							//echo $intransitWeight_x." ".$product_transfer->stock_transfer_product_quantity."<br>";
+						}
+			}
+			else
+			{
+				$receipt_data=$this->db->query("select * from ".$recipet_table." where stock_transfer_number='".$Stock_receipt_details->stock_transfer_number."' order by stock_receipt_id desc limit 1")->row();
+				
+					if(empty($receipt_data) || (!empty($receipt_data) && $receipt_data->authorized_date==''))
+					{
+						
+						$productList=$this->db->get_where($transfer_product_table,array('stock_transfer_id'=>$Stock_receipt_details->stock_transfer_id,'product_id'=>$product->product_id))->result();
+						foreach($productList as $product_transfer)
+						{
+							
+						$intransitWeight_x=$intransitWeight_x+($product_transfer->stock_transfer_product_quantity*$product->product_weight);
+						//echo $intransitWeight_x." ".$product_transfer->stock_transfer_product_quantity."<br>";
+						}
+					}	
+			}
+
+								
+		}
+		$this->db->select('trans_table.stock_transfer_number,trans_table.stock_transfer_date,trans_table.stock_transfer_narration,trans_table.stock_transfer_status,trans_table.stock_transfer_id, trans_table.stock_transfer_to_office_id,trans_table.authorized_date,ofc_mstr.office_name,ofc_mstr.office_address,ofc_mstr.city_id,trans_table.access_level_status,ofc_mstr.office_operation_type,
+		ofc_mstr.district_id,ofc_mstr.state_id,trans_table.added_by')->from($tableNameSTOCKRECEIPT.' as trans_table');
+		$this->db->join('office_master as ofc_mstr','ofc_mstr.office_id=trans_table.stock_transfer_to_office_id');
+		$this->db->where(array('trans_table.authorized_date >=' => '2015-10-01','trans_table.authorized_date <=' => $get_all_record['toDate']));
+		$stock_transfer_st_sh=$this->db->get()->result();
+	//echo $this->db->last_query();
+			$transfer_product_table='inventory_'.$ofc->office_operation_type.'_stock_transfer_product_'.$ofc->office_id;	
+				$in_transit_product_y=0;				
+					foreach($stock_transfer_st_sh as $Stock_receipt_details){
+										
+								$recipet_table='inventory_'.$Stock_receipt_details->office_operation_type.'_stock_receipt_'.$Stock_receipt_details->stock_transfer_to_office_id;
+							
+								$receipt_data=$this->db->query("select * from ".$recipet_table." where stock_transfer_number='".$Stock_receipt_details->stock_transfer_number."' and authorized_date > '".$get_all_record['toDate']."' order by stock_receipt_id desc limit 1")->row();
+								if(!empty($receipt_data))
+								{
+									//echo $this->db->last_query().'<br>';
+										$productList=$this->db->get_where($transfer_product_table,array('stock_transfer_id'=>$Stock_receipt_details->stock_transfer_id,'product_id'=>$product->product_id))->result();
+								foreach($productList as $product_transfer)
+											{
+												
+												$intransitWeight_y=$intransitWeight_y+($product_transfer->stock_transfer_product_quantity*$product->product_weight);
+												//echo $intransitWeight_y." ".$product_transfer->stock_transfer_product_quantity."<br>";
+											}
+								}
+								else
+								{
+									$receipt_data=$this->db->query("select * from ".$recipet_table." where stock_transfer_number='".$Stock_receipt_details->stock_transfer_number."' order by stock_receipt_id desc limit 1")->row();
+									
+										if(empty($receipt_data) || (!empty($receipt_data) && $receipt_data->authorized_date==''))
+										{
+											$productList=$this->db->get_where($transfer_product_table,array('stock_transfer_id'=>$Stock_receipt_details->stock_transfer_id,'product_id'=>$product->product_id))->result();
+											foreach($productList as $product_transfer)
+											{
+												
+												$intransitWeight_y=$intransitWeight_y+($product_transfer->stock_transfer_product_quantity*$product->product_weight);
+												//echo $intransitWeight_y." ".$product_transfer->stock_transfer_product_quantity."<br>";
+											}
+										}	
+								}
+
+								
+					}
+												
+												
+												
+												
+												
+												
+												
+												
+											}
+		}
+										
+										
 										
 										foreach($get_all_record as $officeId=>$record){
-										
+											if($officeId!='todate_x' && $officeId!='toDate' && $officeId!='ofcDatas')
+											{
 										if($record[$product->product_id]['status_disp']=='')
 										{
 											
@@ -219,8 +350,27 @@
 										$soldWeight = 0;
 										$balanceWeight = 0;
 										$intransitWeight = 0;
+										
 											foreach($all_products as $pkey=>$product)
 											{
+												
+												if($record[$product->product_id]['office_operation_type']!='')
+												{
+
+												}
+
+												
+												
+												
+												
+												
+												
+												
+												
+												
+												
+												
+												
 											$totalSuppliedArray[$product->product_id][] = $record[$product->product_id]['opening_stock'];
 											$stockinArray[$product->product_id][] = $record[$product->product_id]['stock_in'];
 											$cumulativeSaleArray[$product->product_id][] = $record[$product->product_id]['sales_stock_all'];
@@ -245,6 +395,8 @@
 											$soldWeight = $soldWeight + (($record[$product->product_id]['sales_stock_all'])* $product->product_weight);
 											$balanceWeight = $balanceWeight + ($record[$product->product_id]['closing_stock'] * $product->product_weight);
 											$intransitWeight = $intransitWeight + ($record[$product->product_id]['in_transit_product'] * $product->product_weight);
+											//$intransitWeight_x = $intransitWeight_x + ($record[$product->product_id]['in_transit_product_x'] * $product->product_weight);
+											//$intransitWeight_y = $intransitWeight_y + ($record[$product->product_id]['in_transit_product_y'] * $product->product_weight);
 											
 										?>
 											<td class="center text-center" style="border-left:2px solid #dddddd;"><?php echo ($record[$product->product_id]['opening_stock']) ? $record[$product->product_id]['opening_stock'] : "0"; ?></td>
@@ -263,6 +415,8 @@
 											$totalSaleWtArray[] = $soldWeight;
 											$totalBalWtArray[] = $balanceWeight;
 											$totalintransWtArray[] = $intransitWeight;
+											//$totalintransWtArray_x[] = $intransitWeight_x;
+											//$totalintransWtArray_y[] = $intransitWeight_y;
 										?>
 											<td class="center text-center" style="border-left:2px solid #dddddd;"><?php echo round($totalWeight/1000,3); ?></td>
 											<td class="center text-center"><?php echo round($soldWeight/1000,3); ?></td>
@@ -270,7 +424,8 @@
 											<td class="center text-center"><?php echo round($intransitWeight/1000,3); ?></td>
 										</tr>
 									<?php
-									}									
+									}
+										}									
 									} ?>
 										<tr class="my-heading2">
 											<td class="center text-center srClass"></td>
@@ -304,10 +459,19 @@
 											<td class="text-center"><?php echo round(array_sum($totalintransWtArray)/1000,3); ?></td>
 										</tr>
 									</tbody>
+										<tfoot>
+										<tr>
+											<th class="text-center srClass">Sr. No1.</th>
+											<th class="text-center" style="width:10%;" ></th>
+											<th class="text-center" style="width:70%;" colspan="<?php echo count($all_products) * 7; ?>" >Coin Sales11111</th>
+											<th class="text-center" style="width:20%;" colspan="4" >Inventory in KGs11111</th>
+										</tr>
+									</tfoot>
 								</table>
 							</div>
 							
-							<div id="stockReciptTable_12" style="margin-top:20px;" >
+							
+							<div id="stockReciptTable_12" style="margin-top:20px;overflow-x:auto;" >
 								<table  class="table table-striped table-bordered responsive">
 									
 										<tr>
@@ -428,10 +592,11 @@
 						
 						
 						
-						<div id="stockReciptTable_13" style="margin-top:20px;" >
+						<div id="stockReciptTable_13" style="margin-top:20px;overflow-x:auto;" >
 						<table width="100%">
 						<tr><td width="50%">
 								<table  class="table table-striped table-bordered responsive">
+									
 										
 										<tr>
 											<th class="text-center" colspan="2">Summary in KGs</th>
@@ -439,14 +604,18 @@
 										</tr>
 									
 									<tbody>
+										<tr style=" border-bottom: 2px solid #ccc;">
 										
+											<td class="center text-left region-class">Opening Stock Intransit</td>
+											<td class="center text-center"><?php echo round($intransitWeight_x/1000,3); ?></td>
+										</tr>
 										<tr style=" border-bottom: 2px solid #ccc;">
 										
 											<td class="center text-left region-class">Opening Stock</td>
 											<td class="center text-center"><?php
 											
 											$opening_stock_summary=array_sum($totalSuppliedWtArray)-($total_summary_stockin-array_sum($totalRecieptWtArray))-array_sum($totalRecieptWtArray)+$total_summary_stockout;
-											echo round($opening_stock_summary/1000,3); ?></td>
+											echo round(($opening_stock_summary+$intransitWeight_x)/1000,3); ?></td>
 										</tr>
 										<?php
 										$stockin_summary=($total_summary_stockin-array_sum($totalRecieptWtArray));
@@ -483,11 +652,16 @@
 										</tr>
 										<tr style=" border-bottom: 2px solid #ccc;">
 										
+											<td class="center text-left region-class">Closing Stock In-transit</td>
+											<td class="center text-center"><?php echo round(($intransitWeight_y-$intransitWeight_x)/1000,3); ?></td>
+										</tr>
+										<tr style=" border-bottom: 2px solid #ccc;">
+										
 											<td class="center text-left region-class">Closing Stock</td>
 											<td class="center text-center"><?php 
-											
+											$diff_trans=$intransitWeight_y-$intransitWeight_x;
 											$balance_summary=$opening_stock_summary+$stockin_summary+array_sum($totalRecieptWtArray)-$total_summary_stockout-array_sum($totalSaleWtArray);
-											echo round($balance_summary/1000,3); ?></td>
+											echo round(($balance_summary+$diff_trans)/1000,3); ?></td>
 										</tr>
 										<tr style=" border-bottom: 2px solid #ccc;">
 										
@@ -505,6 +679,17 @@
 											<th class="text-center" >Physical Stock in Kg: <?php
 											$py_stock=$balance_summary+array_sum($totalintransWtArray);
 											echo round($py_stock/1000,3);?></th>
+											
+										</tr>
+									
+									
+								</table>
+								<table  class="table table-striped table-bordered responsive">
+									
+										<tr>
+											<th class="text-center" >Opening Stock Intransit [01/10/2015 (FIXED) - <?php echo $toDate; ?> (TO DATE)] : <?php
+											
+											echo round($intransitWeight_y/1000,3);?></th>
 											
 										</tr>
 									

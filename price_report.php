@@ -62,8 +62,15 @@ thead { display: table-header-group; }
 				</div>
 				<div class="col-lg-6 col-sm-6 col-xs-6">
 					<div class="center text-center text-uppercase" style="font-size:16px; font-weight:bold;">MMTC-Indian Gold Coin</div>
-					<?php if(!empty($office_data)){?>
-					<div class="center text-center" style="font-size:13px; font-weight:bold;"><?php echo strtoupper($office_data->office_name.'-'.$office_data->office_operation_type.', '.getCityName($office_data->city_id).', '.getStateName($office_data->state_id));?></div>
+					<?php if(!empty($office_data)){
+							$disp_office_name=$office_data->office_name;
+						$regionalStoreData_res = $this->db->select('*')->from('regional_store_master')->where(array('regional_store_id'=>$regional_store_id))->get()->row();
+						if(!empty($regionalStoreData_res))
+						{
+							$disp_office_name=$regionalStoreData_res->regional_store_name;;
+						}
+						?>
+					<div class="center text-center" style="font-size:13px; font-weight:bold;"><?php echo strtoupper($disp_office_name.'-'.$office_data->office_operation_type.', '.getCityName($office_data->city_id).', '.getStateName($office_data->state_id));?></div>
 					<?php } else {?>
 					<div class="center text-center" style="font-size:13px; font-weight:bold;">HEADOFFICE - MMTC LIMITED, SCOPE COMPLEX LODHI ROAD NEW DELHI</div>
 				<?php } ?>

@@ -8,7 +8,7 @@
 						<a href="<?php echo base_url('user/dashboard'); ?>">Home</a>
 					</li>
 					<li>
-						<a href="#">Tax Report</a>
+						<a href="#">Tax Master</a>
 					</li>
 				</ul>
 			</div>
@@ -23,7 +23,7 @@
 				<div class="box col-lg-12 col-md-12 col-xs-12">
 					<div class="box-inner">
 						<div class="box-header well">
-							<h2>Tax Master Report</h2>
+							<h2>Tax Master</h2>
 						</div>
 						<div class="box-content">
 							<div class="row">
